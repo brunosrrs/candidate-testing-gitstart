@@ -70,7 +70,7 @@ const App = () => {
     <div className="App">
       <div className="App-header">
         <div>
-          All online users that emails were sucessfully sent
+          All online users that emails were successfully sent
           <ul>
             {
               //checking if onlineUsers is empty and returning if not a list with the users on the HTML

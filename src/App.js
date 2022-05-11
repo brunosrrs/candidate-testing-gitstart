@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import isEmpty from "lodash/isEmpty";
+import "./App.css";
 
 const App = () => {
-  
   const fetchUserIds = async () => {
     return ["john.smith", "sara.lee", "jack.ma"];
   };
@@ -28,21 +28,62 @@ const App = () => {
     Step 4: Render those which the email was successfully sent
   
   */
+  const [onlineUser, setOnlineUser] = useState();
+
+  useEffect(() => {
+    //loading users
+    fetchUserIds()
+      .then((users) => {
+        console.log(users);
+        return Promise.all(
+          users.map(async (userId) => {
+            return checkStatus(userId);
+          })
+        );
+      })
+      //checking status
+      .then((response) => {
+        console.log(response);
+        return response
+          .filter((user) => user.status === "online")
+          .map((user) => user.id);
+      })
+      // sending emails to online users
+      .then((on) => {
+        console.log(on);
+        return Promise.all(
+          on.map(async (userId) => {
+            return { sent: await sendEmail(userId), userId: userId };
+          })
+        );
+      })
+      //populating the array onlineUser with the method setOnlineUser
+      .then((response) => {
+        console.log(response);
+        setOnlineUser(
+          response.filter((user) => user.sent).map((user) => user.userId)
+        );
+      });
+  }, []);
 
   return (
     <div className="App">
       <div className="App-header">
         <div>
-          All online users that introductions were sucessfully sent
+          All online users that emails were sucessfully sent
           <ul>
-            <li>Student 1</li>
-            <li>Student 2</li>
-            <li>Student 3</li>
+            {
+              //checking if onlineUsers is empty and returning if not a list with the users on the HTML
+              !isEmpty(onlineUser) &&
+                onlineUser.map((user, i) => {
+                  return <li key={i}>{user}</li>;
+                })
+            }
           </ul>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default App;
